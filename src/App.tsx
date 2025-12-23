@@ -369,8 +369,8 @@ function Tabs({ tab, onChange }: { tab: TabId; onChange: (t: TabId) => void }) {
 function Toast({ show, text, onClose }: { show: boolean; text: string; onClose: () => void }) {
   if (!show) return null;
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-      <div className="bg-neutral-900 border border-neutral-800 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-[calc(100%-2rem)] px-4 sm:max-w-[420px]">
+      <div className="bg-neutral-900 border border-neutral-800 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 w-full">
         <CheckCircle2 className="w-5 h-5 text-green-400" />
         <div className="text-sm">{text}</div>
         <button className="ml-2 text-neutral-400 hover:text-white" onClick={onClose} aria-label="Close">
@@ -393,7 +393,7 @@ type Screen =
 
 function Landing({ onEnter }: { onEnter: () => void }) {
   return (
-    <div className="min-h-[78vh] flex flex-col items-center justify-center text-center px-6">
+    <div className="min-h-[calc(100vh-120px)] flex flex-col items-center justify-center text-center px-4 sm:px-6 py-8">
       <div className="w-16 h-16 rounded-3xl bg-blue-600/20 border border-blue-500/35 grid place-items-center mb-5">
         <Car className="w-9 h-9 text-blue-400" />
       </div>
@@ -412,7 +412,7 @@ function Landing({ onEnter }: { onEnter: () => void }) {
 
 function BrowseView({ onBook }: { onBook: (detailerId: string) => void }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-4">
       <GenericDFWMap />
       <div className="grid gap-3 sm:grid-cols-2">
         {DETAILERS.map((d) => (
@@ -473,7 +473,7 @@ function BrowseView({ onBook }: { onBook: (detailerId: string) => void }) {
 
 function MyCarsView({ onSchedule }: { onSchedule: (carId: string) => void }) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 pb-4">
       <h2 className="text-xl font-bold text-white">My Cars</h2>
       <div className="grid gap-3 sm:grid-cols-2">
         {CARS.map((car) => (
@@ -564,7 +564,7 @@ function BookingView({
   }, [day, hour, minute, ampm]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-4">
       <Button variant="ghost" className="text-neutral-300 px-0" onClick={onBack}>
         <ChevronLeft className="w-4 h-4 mr-1" /> Back
       </Button>
@@ -699,7 +699,7 @@ function BookingView({
 
 function InboxView({ threads, onOpen }: { threads: Thread[]; onOpen: (id: string) => void }) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 pb-4">
       <h2 className="text-xl font-bold text-white">Inbox</h2>
       <div className="grid gap-3">
         {threads.map((t) => (
@@ -734,7 +734,7 @@ function InboxView({ threads, onOpen }: { threads: Thread[]; onOpen: (id: string
 function ThreadView({ thread, onBack, onSend }: { thread: Thread; onBack: () => void; onSend: (text: string) => void }) {
   const [draft, setDraft] = useState("");
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-4">
       <Button variant="ghost" className="text-neutral-300 px-0" onClick={onBack}>
         <ChevronLeft className="w-4 h-4 mr-1" /> Back
       </Button>
@@ -865,12 +865,12 @@ export default function WashLinkDemo() {
   const activeThread = screen.id === "thread" ? threads.find((t) => t.id === screen.threadId) : undefined;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-neutral-950 via-neutral-950 to-neutral-900 text-white">
-      {/* Mobile-first stage: centered, constrained width, no phone frame */}
-      <div className="mx-auto w-full max-w-[420px] px-4 py-6">
+    <div className="min-h-screen bg-gradient-to-b from-neutral-950 via-neutral-950 to-neutral-900 text-white overflow-x-hidden">
+      {/* Mobile-first: full width on mobile, centered on larger screens */}
+      <div className="mx-auto w-full max-w-[420px] min-h-screen px-4 py-4 sm:py-6 pb-20 sm:pb-6">
         <Header showActions={screen.id !== "thread" && screen.id !== "booking"} />
 
-        <div className="mt-4">
+        <div className="mt-4 pb-4">
           {screen.id === "landing" ? (
             <Landing onEnter={() => gotoMain("browse")} />
           ) : screen.id === "booking" && selectedCar ? (
@@ -930,8 +930,6 @@ export default function WashLinkDemo() {
           )}
         </div>
 
-        {/* extra bottom space so toast never overlaps content on mobile */}
-        <div className="h-10" />
         <Toast show={!!toast} text={toast ?? ""} onClose={() => setToast(null)} />
       </div>
     </div>
