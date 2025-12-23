@@ -1,6 +1,6 @@
 # WashLink
 
-A mobile-first car wash booking application built with Next.js, React, and Tailwind CSS.
+A mobile-first car wash booking application built with React, Vite, and Tailwind CSS.
 
 ## Features
 
@@ -12,7 +12,8 @@ A mobile-first car wash booking application built with Next.js, React, and Tailw
 
 ## Tech Stack
 
-- **Next.js 14** - React framework
+- **React 18** - UI library
+- **Vite** - Build tool and dev server
 - **TypeScript** - Type safety
 - **Tailwind CSS** - Styling
 - **Lucide React** - Icons
@@ -39,11 +40,23 @@ npm install
 npm run dev
 ```
 
-3. Open [http://localhost:3000](http://localhost:3000) in your browser.
+3. Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+4. Build for production:
+
+```bash
+npm run build
+```
+
+5. Preview production build:
+
+```bash
+npm run preview
+```
 
 ## Deploying to Vercel
 
-Vercel is the easiest way to deploy your Next.js app. Here are the steps:
+Vercel is the easiest way to deploy your React app. Here are the steps:
 
 ### Option 1: Deploy via Vercel Dashboard (Recommended)
 
@@ -52,11 +65,9 @@ Vercel is the easiest way to deploy your Next.js app. Here are the steps:
    - Create a new repository on GitHub
    - Push your code:
      ```bash
-     git init
      git add .
-     git commit -m "Initial commit"
-     git remote add origin <your-github-repo-url>
-     git push -u origin main
+     git commit -m "Convert to React app"
+     git push origin main
      ```
 
 2. **Import to Vercel**
@@ -65,7 +76,10 @@ Vercel is the easiest way to deploy your Next.js app. Here are the steps:
    - Sign in with your GitHub account
    - Click "Add New Project"
    - Import your GitHub repository
-   - Vercel will automatically detect Next.js and configure the project
+   - Vercel will automatically detect it as a static site
+   - **Framework Preset**: Select "Other" or leave as auto-detected
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
    - Click "Deploy"
 
 3. **Your app will be live!**
@@ -97,32 +111,32 @@ Vercel is the easiest way to deploy your Next.js app. Here are the steps:
    vercel --prod
    ```
 
-### Build Configuration
+### Vercel Configuration
 
-Vercel will automatically detect Next.js and use these settings:
+The project includes a `vercel.json` file that configures:
 
-- **Build Command**: `next build`
-- **Output Directory**: `.next`
-- **Install Command**: `npm install`
-
-No additional configuration is needed!
+- Build command: `npm run build`
+- Output directory: `dist`
+- SPA routing: All routes redirect to `index.html` for client-side routing
 
 ## Project Structure
 
 ```
 WashLink/
-├── app/
-│   ├── layout.tsx      # Root layout
-│   ├── page.tsx        # Main page component
-│   └── globals.css     # Global styles
-├── components/
-│   └── ui/             # UI components (Button, Card)
-├── lib/
-│   └── utils.ts        # Utility functions
-├── next.config.js      # Next.js configuration
-├── tailwind.config.ts  # Tailwind CSS configuration
-├── tsconfig.json       # TypeScript configuration
-└── package.json        # Dependencies
+├── src/
+│   ├── App.tsx          # Main app component
+│   ├── main.tsx         # Entry point
+│   ├── index.css        # Global styles
+│   ├── components/
+│   │   └── ui/          # UI components (Button, Card)
+│   └── lib/
+│       └── utils.ts     # Utility functions
+├── index.html           # HTML entry point
+├── vite.config.ts       # Vite configuration
+├── tailwind.config.ts   # Tailwind CSS configuration
+├── tsconfig.json        # TypeScript configuration
+├── vercel.json          # Vercel deployment configuration
+└── package.json         # Dependencies
 ```
 
 ## Environment Variables
@@ -143,4 +157,4 @@ For issues or questions, please open an issue on GitHub.
 
 ---
 
-Built with ❤️ using Next.js and Vercel
+Built with ❤️ using React, Vite, and Vercel
