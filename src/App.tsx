@@ -337,12 +337,13 @@ function Pin({ x, y, label, color }: { x: number; y: number; label: string; colo
   );
 }
 
-type TabId = "browse" | "cars" | "inbox";
+type TabId = "browse" | "cars" | "bookings" | "inbox";
 
 function Tabs({ tab, onChange }: { tab: TabId; onChange: (t: TabId) => void }) {
   const items: { id: TabId; label: string; icon: React.ComponentType<any> }[] = [
     { id: "browse", label: "Browse", icon: Home },
     { id: "cars", label: "My Cars", icon: Car },
+    { id: "bookings", label: "Bookings", icon: CalendarDays },
     { id: "inbox", label: "Inbox", icon: Inbox },
   ];
   return (
@@ -427,7 +428,7 @@ function BrowseView({ onBook }: { onBook: (detailerId: string) => void }) {
                         <h3 className="font-semibold truncate">{d.name}</h3>
                         {d.badge ? <Badge label={d.badge} /> : null}
                       </div>
-                      <div className="text-xs text-neutral-400 mt-1 flex items-center gap-2">
+                      <div className="text-xs text-neutral-400 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
                         <span className="inline-flex items-center gap-1">
                           <Clock className="w-3.5 h-3.5" /> ETA {d.etaMin} min
                         </span>
@@ -697,36 +698,106 @@ function BookingView({
   );
 }
 
+function BookingsView({ threads, onOpen }: { threads: Thread[]; onOpen: (id: string) => void }) {
+  const bookings = threads.filter((t) => t.id.startsWith("booking-"));
+  
+  if (bookings.length === 0) {
+    return (
+      <div className="space-y-3 pb-4">
+        <h2 className="text-xl font-bold text-white">Bookings</h2>
+        <Card className="bg-neutral-900 border border-neutral-800 text-white rounded-2xl">
+          <CardContent className="p-8 text-center">
+            <CalendarDays className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
+            <div className="text-neutral-400 text-sm">No bookings yet</div>
+            <div className="text-xs text-neutral-500 mt-2">Schedule a wash from the Browse or My Cars tab</div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3 pb-4">
+      <h2 className="text-xl font-bold text-white">Bookings</h2>
+      <div className="grid gap-3">
+        {bookings.map((t) => {
+          const bookingMsg = t.messages.find((m) => m.from === "washlink" && m.text.includes("Booking confirmed"));
+          const whenMatch = bookingMsg?.text.match(/When: (.+)/);
+          const when = whenMatch ? whenMatch[1] : t.subtitle.replace("Booking confirmed · ", "");
+          
+          return (
+            <Card
+              key={t.id}
+              className="bg-neutral-900 border border-neutral-800 text-white rounded-2xl cursor-pointer hover:border-neutral-700 transition"
+              onClick={() => onOpen(t.id)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold truncate">{t.title}</div>
+                    <div className="text-xs text-neutral-400 mt-1 flex items-center gap-2">
+                      <Clock className="w-3 h-3" />
+                      <span>{when}</span>
+                    </div>
+                    {bookingMsg?.text.includes("Car:") && (
+                      <div className="text-xs text-neutral-500 mt-1">
+                        {bookingMsg.text.split("\n").find((line) => line.startsWith("Car:"))?.replace("Car: ", "")}
+                      </div>
+                    )}
+                  </div>
+                  <div className="shrink-0">
+                    <CheckCircle2 className="w-5 h-5 text-green-400" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function InboxView({ threads, onOpen }: { threads: Thread[]; onOpen: (id: string) => void }) {
+  const nonBookingThreads = threads.filter((t) => !t.id.startsWith("booking-"));
+  
   return (
     <div className="space-y-3 pb-4">
       <h2 className="text-xl font-bold text-white">Inbox</h2>
-      <div className="grid gap-3">
-        {threads.map((t) => (
-          <Card
-            key={t.id}
-            className="bg-neutral-900 border border-neutral-800 text-white rounded-2xl cursor-pointer hover:border-neutral-700 transition"
-            onClick={() => onOpen(t.id)}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="font-semibold truncate">{t.title}</div>
-                  <div className="text-xs text-neutral-400 mt-1 truncate">{t.subtitle}</div>
-                </div>
-                {t.unread > 0 ? (
-                  <div className="shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white text-xs grid place-items-center">
-                    {t.unread}
+      {nonBookingThreads.length === 0 ? (
+        <Card className="bg-neutral-900 border border-neutral-800 text-white rounded-2xl">
+          <CardContent className="p-8 text-center">
+            <Inbox className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
+            <div className="text-neutral-400 text-sm">No messages</div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-3">
+          {nonBookingThreads.map((t) => (
+            <Card
+              key={t.id}
+              className="bg-neutral-900 border border-neutral-800 text-white rounded-2xl cursor-pointer hover:border-neutral-700 transition"
+              onClick={() => onOpen(t.id)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="font-semibold truncate">{t.title}</div>
+                    <div className="text-xs text-neutral-400 mt-1 truncate">{t.subtitle}</div>
                   </div>
-                ) : (
-                  <div className="text-xs text-neutral-500"> </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <div className="text-xs text-neutral-500 text-center pt-4">Tip: booking confirmation will auto-message your Inbox.</div>
+                  {t.unread > 0 ? (
+                    <div className="shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white text-xs grid place-items-center">
+                      {t.unread}
+                    </div>
+                  ) : (
+                    <div className="text-xs text-neutral-500"> </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -867,7 +938,7 @@ export default function WashLinkDemo() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-neutral-950 via-neutral-950 to-neutral-900 text-white overflow-x-hidden">
       {/* Mobile-first: full width on mobile, centered on larger screens */}
-      <div className="mx-auto w-full max-w-[420px] min-h-screen px-4 py-4 sm:py-6 pb-20 sm:pb-6">
+      <div className="mx-auto w-full max-w-[430px] min-h-screen px-4 py-4 sm:py-6 pb-20 sm:pb-6">
         <Header showActions={screen.id !== "thread" && screen.id !== "booking"} />
 
         <div className="mt-4 pb-4">
@@ -921,6 +992,10 @@ export default function WashLinkDemo() {
                     setScreen({ id: "booking", carId });
                   }}
                 />
+              ) : null}
+
+              {screen.id === "main" && screen.tab === "bookings" ? (
+                <BookingsView threads={threads} onOpen={openThread} />
               ) : null}
 
               {screen.id === "main" && screen.tab === "inbox" ? (
